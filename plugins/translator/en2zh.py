@@ -11,14 +11,14 @@ def isMatch(lang):
         return True
     elif set(lang) & set(['zh', 'zh-TW']):  # 排除中文語系
         return False
-    elif set(lang) & set(['de', 'nl', 'mt', 'cy', 'sl', 'sv', 'sk', 'tr', 'hu', 'lt']):  # 排除歐洲語系
+    elif set(lang) & set(['fr', 'de', 'nl', 'mt', 'cy', 'sl', 'sv', 'sk', 'tr', 'hu', 'lt']):  # 排除歐洲語系
         return False
     else:
         return True
 
 
 def sdcv(s):
-    out = os.popen("sdcv -n -u XDICT英漢辭典 '%s'" % s).read()
+    out = os.popen("sdcv -n -u XDICT英漢辭典 \"%s\"" % s).read()
 
     content = """
 Translate :
