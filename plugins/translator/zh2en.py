@@ -1,3 +1,5 @@
+# coding:utf8
+
 import os
 import re
 
@@ -12,7 +14,7 @@ def isMatch(lang):
 
 
 def sdcv(s):
-    out = os.popen("sdcv -n '%s'" % s).read()
+    out = os.popen("sdcv -n -u XDICT漢英辭典 '%s'" % s).read()
 
     content = """
 Translate :
