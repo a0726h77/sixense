@@ -9,7 +9,7 @@ name = 'en2zh'
 def isMatch(lang):
     if set(lang) & set(['zh', 'zh-TW']):  # 排除中文語系
         return False
-    elif set(lang) & set(['de', 'nl', 'mt', 'cy', 'sl', 'sv', 'sk', 'fr', 'tr', 'hu']):  # 排除歐洲語系
+    elif set(lang) & set(['de', 'nl', 'mt', 'cy', 'sl', 'sv', 'sk', 'tr', 'hu', 'lt']):  # 排除歐洲語系
         return False
     else:
         return True
