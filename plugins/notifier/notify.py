@@ -3,9 +3,9 @@ name = 'notify'
 
 def show(content):
     try:
-        import pynotify
-        pynotify.init('Slx7hS3ns3on')
-        notify = pynotify.Notification('Slx7hS3ns3on', content, "dialog-information")
+        import notify2
+        notify2.init('Slx7hS3ns3on')
+        notify = notify2.Notification('Slx7hS3ns3on', content, "dialog-information")
         notify.show()
     except:
-        print("**** Requires pynotify. sudo pip install py-notify.")
+        print("**** Requires notify. sudo pip install notify2.")
