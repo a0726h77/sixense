@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding:utf8 -*-
 
 # Author: yan <a0726h77@gmail.com>
