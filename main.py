@@ -98,7 +98,8 @@ def myDetect(clipboard_content):
         if int(config['PARSER'][n]['enable']) != 0:
             if p.isMatch(clipboard_content):  # 是否符合 parser 規則, 若爲是, 則解析剪貼簿字串
                 log('  %s ... match' % p.name)
-                result = p.parse(clipboard_content)
+                gkey = config['PARSER']['url']['gsb_api_key']
+                result = p.parse(clipboard_content, gkey)
                 if result:
                     showMessage(result)
             else:
