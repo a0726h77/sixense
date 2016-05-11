@@ -19,7 +19,7 @@ from libs.Logger import Logger
 
 
 #### static variable ####
-config_file = os.path.join(os.getenv('HOME'), ".Slx7hS3ns3onLinux.cfg")
+config_file = os.path.join(os.getenv('HOME'), ".sixense.cfg")
 config = ConfigObj(config_file)
 if 'GLOBAL' not in config.keys():
     config['GLOBAL'] = {}
