@@ -1,5 +1,5 @@
 install:
-	cp Slx7hS3ns3onLinux.cfg ~/.Slx7hS3ns3onLinux.cfg
+	cp sixense.cfg ~/.sixense.cfg
 	sudo pip install -r requirements.txt
 
 clean:
