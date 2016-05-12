@@ -2,3 +2,4 @@ chromium-compact-language-detector==0.031415
 notify2==0.3
 BeautifulSoup==3.2.1
 gglsbl==0.4
+simplejson==3.8.2

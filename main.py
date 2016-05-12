@@ -126,8 +126,10 @@ def myDetect(clipboard_content):
         for i in hash_expect:
             if i in dictOfDecrypter:
                 log("  [+] %s ... try decrypt" % i)
-                result = dictOfDecrypter[i].decrypt(clipboard_content)
-                if result:
+                vkey = config['DECRYPTER']['vt_api_key']
+                decrypt_result = dictOfDecrypter[i].decrypt(clipboard_content)
+                vt_result = dictOfDecrypter[i].vt_report(clipboard_content, vkey)
+                if decrypt_result or vt_result:
                     content = """
 String :
 %s
@@ -137,7 +139,10 @@ Type :
 
 Decrypt :
 %s
-""" % (clipboard_content, i, result)
+
+VirusTotal report :
+%s
+""" % (clipboard_content, i, decrypt_result, vt_result)
                     showMessage(content)
             else:
                 log("  [+] %s ... none" % i)
