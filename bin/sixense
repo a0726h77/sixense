@@ -12,7 +12,7 @@ import os
 import sys
 import pkgutil
 import importlib
-from libs import pyperclip
+import pyperclip
 from libs.configobj import ConfigObj
 from libs.Hash_ID_v1_1 import *
 from libs.Logger import Logger
@@ -213,7 +213,7 @@ if __name__ == "__main__":
                                myDetect,
                                1.)
 
-    pyperclip.setcb('')  # clear clipboard
+    pyperclip.copy('')  # clear clipboard
     watcher.start()
     while True:
         try:
