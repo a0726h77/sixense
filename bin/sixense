@@ -7,7 +7,6 @@
 
 
 import time
-import threading
 import os
 import sys
 import pkgutil
@@ -38,6 +37,8 @@ dictOfDecrypter = {}
 DEBUG = config.getint('GLOBAL', 'DEBUG')
 
 expectedLang = []
+
+recent_value = pyperclip.paste()  # save current clipboard value
 
 
 def log(m):
@@ -77,13 +78,6 @@ def langDetect(s):
         return 'Unknown'
     else:
         return [i[1] for i in details]
-
-
-def is_cliboard_content(content):
-    if content and str(content).lstrip().rstrip():
-        return True
-    else:
-        return False
 
 
 def myDetect(clipboard_content):
@@ -163,28 +157,6 @@ VirusTotal report :
         log("\n")
 
 
-class ClipboardWatcher(threading.Thread):
-    def __init__(self, predicate, callback, pause=1.):
-        super(ClipboardWatcher, self).__init__()
-        self._predicate = predicate
-        self._callback = callback
-        self._pause = pause
-        self._stopping = False
-
-    def run(self):
-        recent_value = ""
-        while not self._stopping:
-            tmp_value = pyperclip.paste()
-            if tmp_value != recent_value:
-                recent_value = tmp_value
-                if self._predicate(recent_value):
-                    self._callback(recent_value)
-            time.sleep(self._pause)
-
-    def stop(self):
-        self._stopping = True
-
-
 def loadModule(module):
     # config = ConfigObj(config_file)
 
@@ -215,23 +187,21 @@ def loadModule(module):
     return modules
 
 
+def main():
+    global recent_value
+
+    while True:
+        tmp_value = pyperclip.paste()
+        if tmp_value != recent_value:
+            recent_value = tmp_value
+            myDetect(recent_value)
+        time.sleep(0.1)
+
+
 if __name__ == "__main__":
     dictOfNotifiers = loadModule('notifier')
     dictOfParsers = loadModule('parser')
     dictOfTranslators = loadModule('translator')
     dictOfDecrypter = loadModule('decrypter')
 
-    # main
-    watcher = ClipboardWatcher(is_cliboard_content,
-                               myDetect,
-                               1.)
-
-    pyperclip.copy('')  # clear clipboard
-    watcher.start()
-    while True:
-        try:
-            # print "Waiting for changed clipboard..."
-            time.sleep(5)
-        except KeyboardInterrupt:
-            watcher.stop()
-            break
+    main()
