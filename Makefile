@@ -1,5 +1,4 @@
 install:
-	cp sixense.cfg ~/.sixense.cfg
 	sudo pip install -r requirements.txt
 
 test:
