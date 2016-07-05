@@ -7,24 +7,24 @@
 
 
 import time
-import threading
 import os
 import sys
 import pkgutil
 import importlib
-from libs import pyperclip
-from libs.configobj import ConfigObj
-from libs.Hash_ID_v1_1 import *
-from libs.Logger import Logger
-
+import pyperclip
+import ConfigParser
+from core.Logger import Logger
+from thirdparty.Hash_ID_v1_1 import *
 
 #### static variable ####
-config_file = os.path.join(os.getenv('HOME'), ".sixense.cfg")
-config = ConfigObj(config_file)
-if 'GLOBAL' not in config.keys():
-    config['GLOBAL'] = {}
-    config['GLOBAL']['DEBUG'] = 1
-    config.write()
+config_file = "conf/sixense.cfg"
+config = ConfigParser.RawConfigParser()
+config.read(config_file)
+print(config.sections())
+# if 'GLOBAL' not in config.sections():
+#     config.get('GLOBAL') = {}
+#     config['GLOBAL']['DEBUG'] = 1
+#     config.write()
 
 logger = Logger('main').__new__()
 
@@ -34,9 +34,11 @@ dictOfTransltors = {}
 dictOfDecrypter = {}
 
 #### global variable ####
-DEBUG = int(config['GLOBAL']['DEBUG'])
+DEBUG = config.getint('GLOBAL', 'DEBUG')
 
 expectedLang = []
+
+recent_value = pyperclip.paste()  # save current clipboard value
 
 
 def log(m):
@@ -45,8 +47,11 @@ def log(m):
 
 
 def showMessage(content):
+    config_file = "conf/notifier.cfg"
+    config = ConfigParser.RawConfigParser()
+    config.read(config_file)
     for n, p in dictOfNotifiers.items():
-        if int(config['NOTIFIER'][n]['enable']) != 0:
+        if config.getint(n, 'enable') != 0:
             p.show(content)
 
 
@@ -75,15 +80,8 @@ def langDetect(s):
         return [i[1] for i in details]
 
 
-def is_cliboard_content(content):
-    if content and str(content).lstrip().rstrip():
-        return True
-    else:
-        return False
-
-
 def myDetect(clipboard_content):
-    config = ConfigObj(config_file)
+    # config = ConfigObj(config_file)
 
     clipboard_content = clipboard_content.lstrip().rstrip()
     log('########################\n')
@@ -93,12 +91,15 @@ def myDetect(clipboard_content):
     expectedLang = langDetect(clipboard_content)
     clipboard_content = clipboard_content.lstrip().rstrip()
 
+    config_file = "conf/parser.cfg"
+    config = ConfigParser.RawConfigParser()
+    config.read(config_file)
     log("Parsers :")
     for n, p in dictOfParsers.items():
-        if int(config['PARSER'][n]['enable']) != 0:
+        if config.getint(n, 'enable') != 0:
             if p.isMatch(clipboard_content):  # 是否符合 parser 規則, 若爲是, 則解析剪貼簿字串
                 log('  %s ... match' % p.name)
-                gkey = config['PARSER']['url']['gsb_api_key']
+                gkey = config.get('url', 'gsb_api_key')
                 result = p.parse(clipboard_content, gkey)
                 if result:
                     showMessage(result)
@@ -107,9 +108,12 @@ def myDetect(clipboard_content):
 
     log("\n")
 
+    config_file = "conf/translator.cfg"
+    config = ConfigParser.RawConfigParser()
+    config.read(config_file)
     log("Translators :")
     for n, p in dictOfTranslators.items():
-        if int(config['TRANSLATOR'][n]['enable']) != 0:
+        if config.getint(n, 'enable') != 0:
             if p.isMatch(expectedLang):  # 是否符合 translator 規則, 若爲是, 則解析剪貼簿字串
                 log('  %s ... match' % p.name)
                 result = p.translate(clipboard_content)
@@ -120,13 +124,16 @@ def myDetect(clipboard_content):
 
     log("\n")
 
+    config_file = "conf/decrypter.cfg"
+    config = ConfigParser.RawConfigParser()
+    config.read(config_file)
     hash_expect = expect_hash(clipboard_content)
     if hash_expect:
         log("Possible Hashs:")
         for i in hash_expect:
             if i in dictOfDecrypter:
                 log("  [+] %s ... try decrypt" % i)
-                vkey = config['DECRYPTER']['vt_api_key']
+                vkey = config.get('vt_api_key')
                 decrypt_result = dictOfDecrypter[i].decrypt(clipboard_content)
                 vt_result = dictOfDecrypter[i].vt_report(clipboard_content, vkey)
                 if decrypt_result or vt_result:
@@ -150,30 +157,8 @@ VirusTotal report :
         log("\n")
 
 
-class ClipboardWatcher(threading.Thread):
-    def __init__(self, predicate, callback, pause=1.):
-        super(ClipboardWatcher, self).__init__()
-        self._predicate = predicate
-        self._callback = callback
-        self._pause = pause
-        self._stopping = False
-
-    def run(self):
-        recent_value = ""
-        while not self._stopping:
-            tmp_value = pyperclip.paste()
-            if tmp_value != recent_value:
-                recent_value = tmp_value
-                if self._predicate(recent_value):
-                    self._callback(recent_value)
-            time.sleep(self._pause)
-
-    def stop(self):
-        self._stopping = True
-
-
 def loadModule(module):
-    config = ConfigObj(config_file)
+    # config = ConfigObj(config_file)
 
     function_string = 'plugins.%s.__file__' % module
     mod_name, func_name = function_string.rsplit('.', 1)
@@ -190,16 +175,27 @@ def loadModule(module):
         result = __import__(thePluginModuleName)
         modules[m] = sys.modules[thePluginModuleName]
 
-        if module.upper() not in config.keys():
-            config[module.upper()] = {}
-            config.write()
+        # if module.upper() not in config.keys():
+        #     config[module.upper()] = {}
+        #     config.write()
 
-        if m not in config[module.upper()].keys():
-            config[module.upper()][m] = {}
-            config[module.upper()][m]['enable'] = 1
-            config.write()
+        # if m not in config[module.upper()].keys():
+        #     config[module.upper()][m] = {}
+        #     config[module.upper()][m]['enable'] = 1
+        #     config.write()
 
     return modules
+
+
+def main():
+    global recent_value
+
+    while True:
+        tmp_value = pyperclip.paste()
+        if tmp_value != recent_value:
+            recent_value = tmp_value
+            myDetect(recent_value)
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":
@@ -208,17 +204,4 @@ if __name__ == "__main__":
     dictOfTranslators = loadModule('translator')
     dictOfDecrypter = loadModule('decrypter')
 
-    # main
-    watcher = ClipboardWatcher(is_cliboard_content,
-                               myDetect,
-                               1.)
-
-    pyperclip.setcb('')  # clear clipboard
-    watcher.start()
-    while True:
-        try:
-            # print "Waiting for changed clipboard..."
-            time.sleep(5)
-        except KeyboardInterrupt:
-            watcher.stop()
-            break
+    main()
