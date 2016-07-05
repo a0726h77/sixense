@@ -5,6 +5,7 @@ from plugins.parser.timestamp import parse as timestamp_parse
 from plugins.parser.myip import isMatch as myip_isMatch
 from plugins.parser.base64_ import isMatch as base64_isMatch
 from plugins.parser.base64_ import parse as base64_parse
+from bin.sixense import langDetect, loadModule
 
 
 class TestSixenseModules(unittest.TestCase):
@@ -33,6 +34,13 @@ class TestSixenseModules(unittest.TestCase):
     def test_base64_decoder(self):
         result = base64_parse("c2l4ZW5zZQ==")[36:43]
         self.assertEqual("sixense", result)
+
+    def test_lang_Detect(self):
+        self.assertEqual(['en', 'it'], langDetect("hello"))
+
+    def test_loadModule(self):
+        result = str(loadModule('notifier'))[2:8]
+        self.assertEqual("notify", result)
 
 
 if __name__ == '__main__':
