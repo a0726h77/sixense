@@ -13,7 +13,7 @@ make install
 ### Usage
 
 ```bash
-python bin/sixense
+python bin/sixense.py
 ```
 
 ### Modules
