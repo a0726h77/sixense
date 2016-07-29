@@ -15,7 +15,12 @@ def getUrlTitle(s):
 
     return soup.title.string
 
-def google_sb_check(url, apikey):
+def google_sb_check(url):
+    import ConfigParser
+    config_file = "conf/parser.cfg"
+    config = ConfigParser.RawConfigParser()
+    config.read(config_file)
+    apikey = config.get('url', 'gsb_api_key')
 
     from gglsbl import SafeBrowsingList
     sbl = SafeBrowsingList(apikey)
@@ -25,7 +30,7 @@ def google_sb_check(url, apikey):
     else:
         return '@@ URL is in the blacklist.'
 
-def parse(clipboard_content, apikey):
+def parse(clipboard_content):
     content = """
 Url :
 %s
@@ -35,6 +40,6 @@ Url Title :
 
 SafeBrowsing Check:
 %s
-""" % (clipboard_content, getUrlTitle(clipboard_content), google_sb_check(clipboard_content, apikey))
+""" % (clipboard_content, getUrlTitle(clipboard_content), google_sb_check(clipboard_content))
 
     return content
